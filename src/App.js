@@ -87,6 +87,7 @@ function App() {
       const { lat, lon } = currentData.coord;
       fetchSevenDay(lat, lon);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentData]);
 
   // get first and last date of the forecast
