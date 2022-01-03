@@ -1,0 +1,30 @@
+.card {
+  height: 100px;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+.card__date {
+  white-space: nowrap;
+  font-size: 1em;
+}
+.card--featured {
+  color: #3b5055;
+  font-weight: bold;
+}
+.card--featured > .card__temp {
+  font-size: 7em;
+  color: white;
+  font-weight: bold;
+}
+.card__day {
+  text-transform: uppercase;
+  color: #3b5055;
+}
+.card__temp {
+  font-size: 1.7em;
+  text-shadow: 0 0 4px #3b5055;
+}
