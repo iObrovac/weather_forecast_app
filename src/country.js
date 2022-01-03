@@ -1,4 +1,4 @@
-export default [
+const countries = [
   {
     n: "Afghanistan (‫افغانستان‬‎)",
     i: "af",
@@ -984,3 +984,5 @@ export default [
     i: "zw",
   },
 ];
+
+export default countries;

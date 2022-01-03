@@ -34,7 +34,9 @@ function App() {
         }
       })
       .then((data) => {
+        // console.log("RES TODAY", data);
         setCurrentData(data);
+        // setError("");
       })
       .catch((error) => {
         setIsLoading(false);
@@ -49,6 +51,7 @@ function App() {
       `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_MY_KEY}`
     )
       .then((res) => {
+        // console.log("RES", res);
         return res.json();
       })
       .then((data) => {
@@ -75,6 +78,7 @@ function App() {
         timeoutRef.current = null;
       }, 500);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput, country]);
 
   // if the currentData exists extract lat and lon and pass them to fetchSevenDay()
@@ -109,6 +113,7 @@ function App() {
       // JAN 30 - FEB 6 2022
       return `${firstMonth} ${firstDay} - ${lastMonth} ${lastDay} ${firstYear}`;
     }
+
     // MAY 4-10 2020
     return `${firstMonth} ${firstDay} - ${lastDay} ${firstYear}`;
   }
@@ -118,6 +123,7 @@ function App() {
     if (!weekData.length) return 0;
     const gradientRange = 81;
     const gradientUnit = 100 / gradientRange;
+    // const viewportRange = 6;
     const currentTemp = weekData[0].temp.day.toFixed(0);
     const currentRelativeTemp = Number(currentTemp) + 40;
 
