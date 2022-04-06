@@ -1,7 +1,17 @@
 import React from "react";
 import "./Card.css";
 
-const Card = ({ dayData, featuredDate = "" }) => {
+type CardProps = {
+  dayData: {
+    dt: number;
+    temp: {
+      day: number;
+    };
+  };
+  featuredDate?: string;
+};
+
+const Card = ({ dayData, featuredDate = "" }: CardProps) => {
   // adjust the data to get the proper day format
   const dayInWeek = new Date(dayData.dt * 1000).toLocaleString("en-us", {
     weekday: "long",
