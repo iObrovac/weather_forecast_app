@@ -983,6 +983,9 @@ const countries = [
     n: "Zimbabwe",
     i: "zw",
   },
-];
+] as const;
+
+export type CountryNameType = typeof countries[number]["n"];
+export type CountryType = typeof countries[number];
 
 export default countries;

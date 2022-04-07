@@ -4,24 +4,134 @@ import Card from "./Card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import CountryDropdown from "country-dropdown-with-flags-for-react";
-import countries from "./country";
+import countries, { CountryNameType, CountryType } from "./country";
 import cloud from "./images/wetherIcon.svg";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
 
-function App() {
-  const [weekData, setWeekData] = useState([]);
-  const [searchInput, setSearchInput] = useState("");
-  const [currentData, setCurrentData] = useState(null);
-  const timeoutRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [country, setCountry] = useState("Serbia (Србија)");
-  const [feedbacks, setFeedbacks] = useState([]);
+export interface Temp {
+  day: number;
+  min: number;
+  max: number;
+  night: number;
+  eve: number;
+  morn: number;
+}
 
-  const chosenCountry = countries.find(({ n }) => n === country);
+export interface FeelsLike {
+  day: number;
+  night: number;
+  eve: number;
+  morn: number;
+}
+
+export interface Weather {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+
+export interface WeekData {
+  dt: number;
+  sunrise: number;
+  sunset: number;
+  moonrise: number;
+  moonset: number;
+  moon_phase: number;
+  temp: Temp;
+  feels_like: FeelsLike;
+  pressure: number;
+  humidity: number;
+  dew_point: number;
+  wind_speed: number;
+  wind_deg: number;
+  wind_gust: number;
+  weather: Weather[];
+  clouds: number;
+  pop: number;
+  uvi: number;
+  rain?: number;
+}
+
+//=================================================================================
+
+export interface Coord {
+  lon: number;
+  lat: number;
+}
+
+export interface Weather {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+
+export interface Main {
+  temp: number;
+  feels_like: number;
+  temp_min: number;
+  temp_max: number;
+  pressure: number;
+  humidity: number;
+  sea_level: number;
+  grnd_level: number;
+}
+
+export interface Wind {
+  speed: number;
+  deg: number;
+  gust: number;
+}
+
+export interface Clouds {
+  all: number;
+}
+
+export interface Sys {
+  type: number;
+  id: number;
+  country: string;
+  sunrise: number;
+  sunset: number;
+}
+
+export type CurrentDataType = null | {
+  coord: Coord;
+  weather: Weather[];
+  base: string;
+  main: Main;
+  visibility: number;
+  wind: Wind;
+  clouds: Clouds;
+  dt: number;
+  sys: Sys;
+  timezone: number;
+  id: number;
+  name: string;
+  cod: number;
+};
+
+interface Feedback {
+  msg: string;
+  id: number;
+  isError: boolean;
+}
+
+function App() {
+  const [weekData, setWeekData] = useState<WeekData[]>([]);
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [currentData, setCurrentData] = useState<CurrentDataType>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [country, setCountry] = useState<CountryNameType>("Serbia (Србија)");
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+
+  const chosenCountry = countries.find(({ n }) => n === country) as CountryType;
 
   // get the data for the city and store it in currentData
-  function fetchToday(city, country) {
+  function fetchToday(city: string, country: CountryType) {
     fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city},${country.i}&units=metric&appid=${process.env.REACT_APP_MY_KEY}`
     )
@@ -34,7 +144,7 @@ function App() {
         }
       })
       .then((data) => {
-        // console.log("RES TODAY", data);
+        // console.log("currentData", data);
         setCurrentData(data);
         // setError("");
       })
@@ -46,7 +156,7 @@ function App() {
   }
 
   // get the data for a week and store it in weekData
-  function fetchSevenDay(lat, lon) {
+  function fetchSevenDay(lat: number, lon: number) {
     fetch(
       `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_MY_KEY}`
     )
@@ -55,11 +165,10 @@ function App() {
         return res.json();
       })
       .then((data) => {
-        setWeekData(data.daily);
+        setWeekData(data.daily as WeekData[]);
         addFeedbackMessage("City found!", false);
         setIsLoading(false);
       })
-
       .catch((error) => {
         setIsLoading(false);
         console.log(error);
@@ -91,7 +200,7 @@ function App() {
   }, [currentData]);
 
   // get first and last date of the forecast
-  function getFeaturedDate() {
+  function getFeaturedDateRange() {
     if (!weekData) return "";
     const firstDate = new Date(weekData[0].dt * 1000);
     const lastDate = new Date(weekData[weekData.length - 2].dt * 1000);
@@ -124,15 +233,14 @@ function App() {
     if (!weekData.length) return 0;
     const gradientRange = 81;
     const gradientUnit = 100 / gradientRange;
-    // const viewportRange = 6;
     const currentTemp = weekData[0].temp.day.toFixed(0);
     const currentRelativeTemp = Number(currentTemp) + 40;
 
     return gradientUnit * currentRelativeTemp;
   }
 
-  function addFeedbackMessage(msg, isError) {
-    const msgObj = { msg, id: Math.random(), isError };
+  function addFeedbackMessage(msg: string, isError: boolean) {
+    const msgObj: Feedback = { msg, id: Math.random(), isError };
     setFeedbacks((prev) => [msgObj, ...prev]);
     setTimeout(() => {
       setFeedbacks((prev) => {
@@ -149,7 +257,7 @@ function App() {
       <div
         className="container-background"
         style={{
-          transform: `translateX(-${getGradientOffset()}%)`,
+          transform: `translateX(calc(-1 * ${getGradientOffset()}%))`,
           opacity: weekData?.length ? 1 : 0,
         }}
       >
@@ -170,13 +278,14 @@ function App() {
                 className="dropdown"
                 preferredCountries={["rs"]}
                 disabled
-                value=""
-                handleChange={(e) => {
-                  setCountry(e.target.value);
+                handleChange={(e: Event) => {
+                  setCountry(
+                    (e.target as HTMLInputElement).value as CountryNameType
+                  );
                 }}
               ></CountryDropdown>
               <div className="country-short">
-                {chosenCountry?.i.toUpperCase() || "RS"}
+                {chosenCountry?.i.toUpperCase()}
               </div>
             </div>
             <div className="input-wrap">
@@ -225,7 +334,7 @@ function App() {
 
         <div className="featured-card-container">
           {weekData[0] && (
-            <Card featuredDate={getFeaturedDate()} dayData={weekData[0]} />
+            <Card featuredDate={getFeaturedDateRange()} dayData={weekData[0]} />
           )}
         </div>
         <div className="cards-container">
